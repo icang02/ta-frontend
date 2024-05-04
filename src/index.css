@@ -117,7 +117,7 @@
 ::-webkit-scrollbar-thumb {
   background-color: #64a1ad; /* color of the scroll thumb */
   border-radius: 30px;
-  border: 15px solid white;
-  border-right: 4px solid white;
+  border: 15px solid #64a1ad;
+  border-right: 4px solid #64a1ad;
   /* border-top-right-radius: 50px; */
 }

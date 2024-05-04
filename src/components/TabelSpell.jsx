@@ -1,35 +1,16 @@
-import React, { useEffect } from "react";
-import { resultApiState } from "./form/FileInput";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
-
-export const dataDownloadState = atom({
-  key: "dataDownloadState",
-  default: [],
-});
+import React from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { resultApiState, saranKataState } from "../lib/recoil";
 
 export default function TableSpell() {
-  const [dataDownload, setDataDowload] = useRecoilState(dataDownloadState);
+  const [saranKata, setSaranKata] = useRecoilState(saranKataState);
   const resultApi = useRecoilValue(resultApiState);
 
-  useEffect(() => {
-    let data = [];
-    resultApi.map((obj) => {
-      let y = {
-        str: obj[0].str,
-        target: obj[0].target,
-      };
-      data.push(y);
-    });
-
-    setDataDowload(data);
-  }, [resultApi]);
-
   const pilihSaran = (e, i) => {
-    const newDataDownload = [...dataDownload]; // Membuat salinan array
-    newDataDownload[i] = { ...newDataDownload[i], target: e.target.value }; // Memperbarui nilai target
+    const newSaranKata = [...saranKata]; // Membuat salinan array
+    newSaranKata[i] = { ...newSaranKata[i], target: e.target.value }; // Memperbarui nilai target
 
-    setDataDowload(newDataDownload);
-    // console.log(dataDownload);
+    setSaranKata(newSaranKata);
   };
 
   return (

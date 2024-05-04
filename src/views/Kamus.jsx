@@ -6,6 +6,7 @@ import Pagination from "../components/Pagination";
 import { useLocation } from "react-router-dom";
 import { axiosCustom } from "../lib/axiosCustom";
 import { atom, useSetRecoilState } from "recoil";
+import { saranKataState } from "../lib/recoil";
 
 export const dataKamusAtom = atom({
   key: "dataKamusAtom",
@@ -25,11 +26,16 @@ export default function Kamus() {
   const searchParam = urlParams.get("search");
 
   const setData = useSetRecoilState(dataKamusAtom);
+  const setSaranKata = useSetRecoilState(saranKataState);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
   }, [abjadParam, pageParam, searchParam]);
+
+  useEffect(() => {
+    setSaranKata([]);
+  }, []);
 
   const fetchData = async (take = 50, abjad = "a") => {
     const data = await axiosCustom.get("/kamus", {
