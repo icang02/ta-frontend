@@ -1,23 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { axiosCustom } from "../../lib/axiosCustom";
-import {
-  atom,
-  useRecoilState,
-  useRecoilValue,
-  useSetRecoilState,
-} from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
 import { resultApiState, saranKataState } from "../../lib/recoil";
-
-// export const resultApiState = atom({
-//   key: "resultApiState",
-//   default: [],
-// });
-
-// export const saranKataState = atom({
-//   key: "saranKataState",
-//   default: [],
-// });
 
 export default function FileInput() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -25,9 +10,15 @@ export default function FileInput() {
   const [dragging, setDragging] = useState(false);
   const [fileName, setFileName] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingDownload, setLoadingDownload] = useState(false);
   const [saranKata, setSaranKata] = useRecoilState(saranKataState);
 
   const setResultApi = useSetRecoilState(resultApiState);
+
+  useEffect(() => {
+    setResultApi([]);
+    setSaranKata([]);
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -90,7 +81,20 @@ export default function FileInput() {
       });
   };
 
+  // function generateRandomString(length) {
+  //   const characters =
+  //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  //   const charactersLength = characters.length;
+  //   let result = "";
+  //   for (let i = 0; i < length; i++) {
+  //     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  //   }
+  //   return result;
+  // }
+
   const handleDownload = async () => {
+    setLoadingDownload(true);
+
     axiosCustom({
       url: "/download-file",
       method: "POST",
@@ -101,11 +105,13 @@ export default function FileInput() {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", fileName);
+        link.setAttribute("download", `${fileName}`);
         document.body.appendChild(link);
         link.click();
+        setLoadingDownload(false);
       })
       .catch((error) => {
+        setLoadingDownload(false);
         console.error("Gagal mengunduh file:", error);
       });
   };
@@ -174,9 +180,7 @@ export default function FileInput() {
               <span className="font-semibold">Click to upload</span> or drag and
               drop
             </p>
-            <p className="text-xs text-gray-500">
-              SVG, PNG, JPG or GIF (MAX. 800x400px)
-            </p>
+            <p className="text-xs text-gray-500">DOCX or TXT (MAX. 15MB)</p>
           </div>
           <input
             onChange={handleFileChange}
@@ -196,10 +200,12 @@ export default function FileInput() {
         <div className="flex space-x-1">
           <button
             onClick={handleUpload}
-            disabled={!selectedFile}
+            disabled={!selectedFile || isRunning}
             className={`${
-              selectedFile && "!opacity-100 hover:bg-[#508d99] cursor-pointer"
-            } flex items-center justify-center cursor-not-allowed opacity-60 w-24 h-8 bg-[#64A1AD] text-white rounded font-bold text-sm`}
+              selectedFile && "!opacity-100 !hover:bg-[#508d99] cursor-pointer"
+            } ${
+              isRunning && "!opacity-60 !hover:bg-[#64A1AD] !cursor-progress"
+            } flex items-center justify-center cursor-not-allowed opacity-60 w-24 h-8 bg-[#64A1AD] text-white rounded font-bold text-sm transition-all`}
           >
             {!loading ? (
               "Upload"
@@ -213,9 +219,14 @@ export default function FileInput() {
           </button>
           <button
             onClick={handleDownload}
-            disabled={!statusUpload}
+            disabled={!statusUpload || loadingDownload || isRunning}
             className={`${
-              statusUpload && "!opacity-100 hover:bg-[#508d99] cursor-pointer"
+              statusUpload && "!opacity-100 !hover:bg-[#508d99] cursor-pointer"
+            } ${
+              loadingDownload &&
+              "!opacity-60 !hover:bg-[#64A1AD] !cursor-progress"
+            } ${
+              isRunning && "!opacity-60 !hover:bg-[#64A1AD] !cursor-progress"
             } cursor-not-allowed opacity-60 px-5 py-1.5 bg-[#64A1AD] text-white rounded font-bold text-sm`}
           >
             Download
