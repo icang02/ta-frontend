@@ -102,17 +102,7 @@ const TextInput = () => {
     return () => clearTimeout(debounce);
   }, [userText]);
 
-  // useEffect(() => {
-  //   // Efek untuk meng-handle perubahan scrool
-  //   const textarea = document.querySelector(".inputText");
-  //   const previewInput = document.querySelector(".previewInput");
-
-  //   if (textarea) {
-  //     textarea.scrollTop = textareaScrollTop;
-  //     previewInput.scrollTop = textareaScrollTop;
-  //   }
-  // }, [textareaScrollTop]);
-
+  // simpan data kamus di localstorage
   useEffect(() => {
     const fetchKamus = async () => {
       try {
@@ -161,12 +151,6 @@ const TextInput = () => {
 
     localStorage.setItem("kamus", kamus);
   };
-
-  // useEffect(() => {
-  //   const contentEditableElement = contentEditableRef.current;
-  //   contentEditableElement.innerText = userText;
-  //   setCursorToEnd(contentEditableElement);
-  // }, [userText]);
 
   const handleSaran = (string, target) => {
     setUserText((prev) => prev.replaceAll(string, target));

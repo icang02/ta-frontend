@@ -36,7 +36,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <div className="fixed top-0 w-full bg-white border-2">
+    <div className="fixed top-0 w-full bg-white border-2 z-[0]">
       <nav className="py-2.5 flex z-50 mx-auto justify-between items-center max-w-6xl">
         <Link to={"/"}>
           <img src="logo.png" alt="logo" width={140} />

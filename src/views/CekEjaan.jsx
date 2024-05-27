@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TabelSpell from "../components/TabelSpell";
 import FileInput from "../components/form/FileInput";
-import TextInput from "./TextInput";
+import TextInput from "../components/form/TextInput";
 
 export default function CekEjaan() {
   const [inputType, setInputType] = useState(true);

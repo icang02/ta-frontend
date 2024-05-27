@@ -63,16 +63,18 @@ export default function FileInput() {
 
         setStatusUpload(true);
         setFileName(response.data.fileName);
-        setResultApi(response.data.suggestWord);
+        // setResultApi(response.data.suggestWord);
 
-        setSaranKata(
-          response.data.suggestWord.map((item) => ({
-            str: item[0].str,
-            target: item[0].target,
-          }))
-        );
+        // setSaranKata(
+        //   response.data.suggestWord.map((item) => ({
+        //     str: item[0].str,
+        //     target: item[0].target,
+        //   }))
+        // );
         setLoading(false);
         setIsRunning(false);
+
+        console.log(response.data.suggestWord);
       })
       .catch((error) => {
         setLoading(false);

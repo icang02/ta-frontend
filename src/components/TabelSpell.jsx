@@ -56,13 +56,13 @@ export default function TableSpell() {
               ) : (
                 resultApi.map((item, i) => (
                   <tr className="text-gray-700" key={i}>
-                    <td className="px-4 py-3 text-sm font-semibold border">
+                    <td className="text-wrap w-[50%] px-4 py-3 text-sm font-semibold border">
                       <span className="text-red-500">{item[0].str}</span>
                       {item[0].target != "-" && (
                         <button
                           onClick={() => handleAbaikan(i)}
                           className={
-                            "px-2 p-0.5 float-right rounded text-white hover:bg-red-600 " +
+                            "px-2 p-0.5 float-right rounded text-white hover:bg-red-500 " +
                             (saranKata[i].target === "-"
                               ? "bg-red-500"
                               : "bg-red-300")
@@ -72,7 +72,7 @@ export default function TableSpell() {
                         </button>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-semibold border">
+                    <td className="w-[50%] px-4 py-3 font-semibold border">
                       {item[0].target == "-" ? (
                         <p className="px-3">-</p>
                       ) : (
