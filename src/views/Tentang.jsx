@@ -31,7 +31,7 @@ export default function Tentang() {
   ];
 
   return (
-    <div className="min-h-screen max-w-6xl mx-auto pt-[100px]">
+    <div className="min-h-screen max-w-6xl mx-auto pt-[90px] md:pt-[100px] px-4 md:px-0">
       <h1 className="font-bold text-xl text-center mb-4">Tentang</h1>
       <div className="mt-3 flex justify-center">
         <button
@@ -57,27 +57,26 @@ export default function Tentang() {
       </div>
 
       <div className="mt-10 max-w-3xl mx-auto">
-        <div className="grid grid-cols-12 gap-x-10">
+        <div className="grid grid-cols-12">
           <div className="col-span-12">
             {inputType ? (
               <>
-                <h1 className="leading-normal font-bold text-slate-900 text-xl text-center mb-10">
+                <h1 className="leading-6 md:leading-normal font-bold text-slate-900 text-lg md:text-xl text-center mb-8 md:mb-10">
                   Sistem Deteksi Kesalahan Ejaan Pada Dokumen Jurnal Ilmiah
-                  Menggunakan Dictionary Lookup, Metode Empiris, dan Damerau
+                  Menggunakan Kombinasi Algoritma Boyer Moore dan Damerau
                   Levenshtein Distance
                 </h1>
-                <div className="flex flex-col space-y-6 text-slate-900 px-10 text-justify">
+                <div className="text-sm md:text-base flex flex-col space-y-6 text-slate-900 px-2 md:px-10 text-justify">
                   <p className="leading-relaxed">
                     SpelCek merupakan sebuah platform yang dirancang untuk
                     mendeteksi kesalahan ejaan dalam dokumen jurnal ilmiah.
-                    Website ini menggunakan tiga metode utama dalam proses
-                    deteksi kesalahan ejaan, yaitu Dictionary Lookup, Metode
-                    Empiris, dan Algoritma Damerau-Levenshtein Distance.
+                    Website ini menggunakan Algoritma Boyer Moore dan Algoritma
+                    Damerau-Levenshtein Distance dalam memberikan saran kata.
                   </p>
                   <p className="leading-relaxed">
-                    Website ini memberikan kemudahan bagi para penulis dan
-                    pembaca jurnal ilmiah dalam mendeteksi dan memperbaiki
-                    kesalahan ejaan yang mungkin terjadi dalam dokumen, sehingga
+                    SpelCek memberikan kemudahan bagi para penulis dan pembaca
+                    jurnal ilmiah dalam mendeteksi dan memperbaiki kesalahan
+                    ejaan yang mungkin terjadi dalam dokumen, sehingga
                     meningkatkan kualitas dan keakuratan tulisan ilmiah.
                   </p>
                 </div>

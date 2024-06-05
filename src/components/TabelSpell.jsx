@@ -30,7 +30,7 @@ export default function TableSpell() {
   };
 
   return (
-    <section className="container mx-auto font-mono">
+    <section className="container mx-auto font-roboto">
       <div className="w-full overflow-hidden rounded-lg shadow-lg">
         <div
           className="w-full overflow-x-auto overflow-y-scroll max-h-[440px] border-2"
@@ -38,27 +38,40 @@ export default function TableSpell() {
         >
           <table className="w-full">
             <thead>
-              <tr className="text-md font-semibold tracking-wide text-left text-gray-900 bg-gray-100 uppercase border-b border-gray-600">
+              <tr className="text-sm font-medium tracking-wide text-left bg-gray-100 uppercase border-b border-gray-600">
                 <th className="px-4 py-3">Kata Typo</th>
                 <th className="px-4 py-3">Saran Kata</th>
               </tr>
             </thead>
             <tbody className="bg-white">
               {resultApi.length === 0 ? (
-                <tr className="text-gray-700">
+                <tr>
                   <td
                     colSpan={2}
-                    className="px-4 py-3 text-sm font-semibold border text-center"
+                    className="px-4 py-3 text-sm font-medium border text-center"
                   >
                     No data
                   </td>
                 </tr>
               ) : (
                 resultApi.map((item, i) => (
-                  <tr className="text-gray-700" key={i}>
-                    <td className="text-wrap w-[50%] px-4 py-3 text-sm font-semibold border">
-                      <span className="text-red-500">{item[0].str}</span>
-                      {item[0].target != "-" && (
+                  <tr key={i}>
+                    <td
+                      className={`text-wrap w-[50%] px-4 py-3 text-sm font-medium border ${
+                        item.suggestions.length > 1 &&
+                        Array.isArray(item.suggestions)
+                          ? "underline text-red-600"
+                          : item.suggestions.length == 0
+                          ? "text-slate-500"
+                          : typeof item.suggestions === "object" ||
+                            typeof item.suggestions === "string"
+                          ? "text-red-600"
+                          : ""
+                      }`}
+                    >
+                      {item.string}
+
+                      {item.suggestions.length != 0 && (
                         <button
                           onClick={() => handleAbaikan(i)}
                           className={
@@ -72,25 +85,45 @@ export default function TableSpell() {
                         </button>
                       )}
                     </td>
-                    <td className="w-[50%] px-4 py-3 font-semibold border">
-                      {item[0].target == "-" ? (
+
+                    <td className="w-[50%] px-4 py-3 font-medium border">
+                      {item.suggestions.length == 0 ? (
                         <p className="px-3">-</p>
                       ) : (
                         <select
-                          // onChange={(e) => pilihSaran(e, i)}
                           onChange={(e) => handlePilihSaran(e, i)}
                           value={saranKata[i].target}
-                          className="border-none font-bold text-sm mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+                          className={`${
+                            saranKata[i].target == "-"
+                              ? "text-slate-500"
+                              : "text-black"
+                          } border text-sm mt-1 block w-full px-2.5 py-2 border-gray-300 rounded-md focus:outline-none focus:border-[#64A1AD]`}
                         >
-                          {item.map((str, j) => (
+                          {Array.isArray(item.suggestions) ? (
+                            item.suggestions.map((str, j) => (
+                              <option key={j} value={str.target}>
+                                {str.target} ({str.similarity}%)
+                              </option>
+                            ))
+                          ) : typeof item.suggestions === "object" ? (
                             <option
-                              key={j}
-                              value={str.target}
+                              value={item.suggestions.target}
                               className="text-black"
                             >
-                              {str.target} ({str.similarity}%)
+                              {item.suggestions.target} (
+                              {item.suggestions.similarity}%)
                             </option>
-                          ))}
+                          ) : typeof item.suggestions === "string" ? (
+                            <option
+                              value={item.suggestions}
+                              className="text-black"
+                            >
+                              {item.suggestions}
+                            </option>
+                          ) : (
+                            ""
+                          )}
+
                           <option value="-" className="text-black">
                             Abaikan
                           </option>

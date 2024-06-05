@@ -9,3 +9,8 @@ export const saranKataState = atom({
   key: "saranKataState",
   default: [],
 });
+
+export const loadingUploadState = atom({
+  key: "loadingUploadState",
+  default: false,
+});

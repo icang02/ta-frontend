@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { axiosCustom } from "../../lib/axiosCustom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
-import { resultApiState, saranKataState } from "../../lib/recoil";
+import {
+  loadingUploadState,
+  resultApiState,
+  saranKataState,
+} from "../../lib/recoil";
 
 export default function FileInput() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -12,12 +16,13 @@ export default function FileInput() {
   const [loading, setLoading] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
   const [saranKata, setSaranKata] = useRecoilState(saranKataState);
+  const setLoadingUpload = useSetRecoilState(loadingUploadState);
 
   const setResultApi = useSetRecoilState(resultApiState);
+  const [errorFileInput, setErrorFileInput] = useState(null);
 
   useEffect(() => {
     setResultApi([]);
-    setSaranKata([]);
   }, []);
 
   const handleFileChange = (e) => {
@@ -49,8 +54,10 @@ export default function FileInput() {
   };
 
   const handleUpload = async () => {
+    setErrorFileInput("");
     setTime(0);
     setIsRunning(true);
+    setLoadingUpload(true);
 
     setLoading(true);
     const formData = new FormData();
@@ -63,39 +70,49 @@ export default function FileInput() {
 
         setStatusUpload(true);
         setFileName(response.data.fileName);
-        // setResultApi(response.data.suggestWord);
+        setResultApi(response.data.suggestWord);
 
-        // setSaranKata(
-        //   response.data.suggestWord.map((item) => ({
-        //     str: item[0].str,
-        //     target: item[0].target,
-        //   }))
-        // );
-        setLoading(false);
-        setIsRunning(false);
-
-        console.log(response.data.suggestWord);
+        setSaranKata(
+          response.data.suggestWord.map((item) => ({
+            str: item.string,
+            target:
+              item.suggestions.length > 1 && Array.isArray(item.suggestions)
+                ? item.suggestions[0].target
+                : typeof item.suggestions === "object"
+                ? item.suggestions.target
+                : typeof item.suggestions === "string" && item.suggestions,
+          }))
+        );
+        // console.log(response.data.suggestWord);
       })
       .catch((error) => {
+        setErrorFileInput(error.response.data.message);
+        // console.log(error.response.data.message);
+      })
+      .finally(() => {
         setLoading(false);
         setIsRunning(false);
-        console.error("Error uploading file:", error);
+        setLoadingUpload(false);
       });
   };
 
-  // function generateRandomString(length) {
-  //   const characters =
-  //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  //   const charactersLength = characters.length;
-  //   let result = "";
-  //   for (let i = 0; i < length; i++) {
-  //     result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  //   }
-  //   return result;
-  // }
-
   const handleDownload = async () => {
     setLoadingDownload(true);
+
+    const getCurrentDate = () => {
+      const date = new Date();
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      return `${year}-${month}-${day}`;
+    };
+
+    const currentDate = getCurrentDate();
+    const randomNumber = Math.floor(Math.random() * 10000);
+    const fileNameDownload = `${fileName.replace(
+      ".docx",
+      ""
+    )}-${currentDate}-${randomNumber}.docx`;
 
     axiosCustom({
       url: "/download-file",
@@ -107,7 +124,7 @@ export default function FileInput() {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", `${fileName}`);
+        link.setAttribute("download", `${fileNameDownload}`);
         document.body.appendChild(link);
         link.click();
         setLoadingDownload(false);
@@ -151,7 +168,7 @@ export default function FileInput() {
 
   return (
     <>
-      <div className="flex items-center justify-center w-full">
+      <div className="flex items-center justify-center w-[100%]">
         <label
           onDragOver={handleDragOver}
           onDragEnter={handleDragEnter}
@@ -179,7 +196,7 @@ export default function FileInput() {
               />
             </svg>
             <p className="mb-2 text-sm text-gray-500">
-              <span className="font-semibold">Click to upload</span> or drag and
+              <span className="font-medium">Click to upload</span> or drag and
               drop
             </p>
             <p className="text-xs text-gray-500">DOCX or TXT (MAX. 15MB)</p>
@@ -189,7 +206,7 @@ export default function FileInput() {
             id="dropzone-file"
             type="file"
             className="hidden"
-            accept=".docx"
+            accept=".docx,.txt"
           />
         </label>
       </div>
@@ -240,6 +257,12 @@ export default function FileInput() {
           <span className="text-[11px] absolute right-0">milisecond</span>
         </div>
       </div>
+
+      {errorFileInput && (
+        <p className="mt-5 px-5 py-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+          {errorFileInput}
+        </p>
+      )}
     </>
   );
 }

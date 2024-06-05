@@ -29,7 +29,7 @@ export default function Dashboard() {
   const dataCardDashHome = [
     {
       title: "Selamat Datang di halaman Dashboard",
-      desc: "Sistem Deteksi Kesalahan Ejaan Pada Dokumen Jurnal Ilmiah Menggunakan Dictionary Lookup, Metode Emprisi, dan Damerau Levenshtein Distance",
+      desc: "Sistem Deteksi Kesalahan Ejaan Pada Dokumen Jurnal Ilmiah Menggunakan Kombinasi Algoritma Boyer Moore dan Damerau Levenshtein Distance.",
     },
     {
       title: "Total Data Kamus",

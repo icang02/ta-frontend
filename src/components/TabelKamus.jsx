@@ -71,12 +71,12 @@ export default function TabelKamus({ fetchData }) {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-3">
-        <small className="block">
+      <div className="flex flex-col md:flex-row justify-between space-y-2 md:space-y-0 items-end mb-3">
+        <small className="block self-start md:self-end">
           Total kata : <b>{dataKamus.totalKamus.toLocaleString()} data</b>
         </small>
 
-        <form className="flex items-center">
+        <form className="flex items-center self-center w-full md:w-64">
           <label htmlFor="simple-search" className="sr-only">
             Search
           </label>

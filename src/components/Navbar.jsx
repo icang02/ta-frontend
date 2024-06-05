@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { isTokenExpired } from "../views/Dashboard";
 
 export default function Navbar() {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [isLogin, setIsLogin] = useState(false);
 
   const menu = [

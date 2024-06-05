@@ -12,9 +12,8 @@ const TextInput = () => {
   const [isSyncingScroll, setIsSyncingScroll] = useState(false);
   const [kamusDetect, setKamusDetect] = useState([]);
 
-  const [isValid, setIsValid] = useState(true);
-
   const maksInput = 10000;
+  const [kamusData, setkamusData] = useState([]);
 
   // useeffect untuk hasil koreksi dan saran
   useEffect(() => {
@@ -50,7 +49,7 @@ const TextInput = () => {
                 (item) => item.string == part
               );
 
-              if (matchingObject && matchingObject.type == 1) {
+              if (matchingObject && matchingObject.suggestions != 0) {
                 return (
                   <TooltipWrapper
                     key={partIndex}
@@ -59,16 +58,10 @@ const TextInput = () => {
                     {part}
                   </TooltipWrapper>
                 );
-              } else if (matchingObject && matchingObject.type == 2) {
-                return (
-                  <TooltipWrapper
-                    key={partIndex}
-                    tooltipContent={matchingObject.suggestions}
-                  >
-                    {part}
-                  </TooltipWrapper>
-                );
-              } else if (matchingObject && matchingObject.type == 3) {
+              } else if (
+                matchingObject &&
+                matchingObject.suggestions.length == 0
+              ) {
                 return (
                   <span key={partIndex} className="text-slate-400 font-medium">
                     {part}
@@ -84,7 +77,7 @@ const TextInput = () => {
       };
 
       setPreview(previewComponent);
-    }, 200);
+    }, 250);
 
     return () => clearTimeout(debounce);
   }, [inputUser]);
@@ -93,16 +86,8 @@ const TextInput = () => {
   useEffect(() => {
     const fetchKamus = async () => {
       const res = await axiosCustom.post("/get-all-kamus");
-      if (localStorage.getItem("kamus") == null) {
-        const data = res.data.map((item, index) => ({
-          word: item,
-          count: 0,
-          percentage: Math.floor(Math.random() * 100 * (index + 1)),
-        }));
-        data.sort((a, b) => b.percentage - a.percentage);
-
-        localStorage.setItem("kamus", JSON.stringify(data));
-      }
+      const data = res.data.kamus.sort((a, b) => b.count - a.count);
+      setkamusData(data);
     };
 
     fetchKamus();
@@ -111,8 +96,6 @@ const TextInput = () => {
   // useeffect untuk handle saran pakai tombol tab
   useEffect(() => {
     if (inputUser.length != 0) {
-      let kamus = JSON.parse(localStorage.getItem("kamus"));
-
       let lastSpaceIndex = inputUser.lastIndexOf(" ");
       let lastNewLineIndex = inputUser.lastIndexOf("\n");
       let lastSpaceOrNewLineIndex = Math.max(lastSpaceIndex, lastNewLineIndex);
@@ -122,11 +105,11 @@ const TextInput = () => {
       if (inputUserLast == "") {
         setWordSuggestion("");
       } else {
-        let wordFind = kamus.find((item) =>
-          item.word.startsWith(inputUserLast)
+        let wordFind = kamusData.find((item) =>
+          item.kata.startsWith(inputUserLast)
         );
         if (wordFind != null) {
-          setWordSuggestion(wordFind.word);
+          setWordSuggestion(wordFind.kata);
         }
       }
     } else {
@@ -212,7 +195,7 @@ const TextInput = () => {
     };
   }, [isSyncingScroll]);
 
-  const countWords = (inputUser) => {
+  const countInput = (inputUser) => {
     return inputUser.length;
   };
 
@@ -229,28 +212,33 @@ const TextInput = () => {
     });
   };
 
-  // const handleResetSaran = () => {
-  //   const kamus = JSON.parse(localStorage.getItem("kamus"));
-  //   const kamusReset = kamus.map((item) => ({
-  //     word: item.word,
-  //     count: 0,
-  //     percentage: 0,
-  //   }));
-
-  //   localStorage.removeItem("kamus");
-  //   localStorage.setItem(
-  //     "kamus",
-  //     JSON.stringify(kamusReset.sort((a, b) => a.word.localeCompare(b.word)))
-  //   );
-  // };
-
-  // masih error
   const handleSelectSuggestion = (part, target) => {
     setInputUser((prev) => prev.replaceAll(part, target));
   };
 
+  // handle tombol save
   const handleSave = () => {
-    alert("okee");
+    const getCurrentDate = () => {
+      const date = new Date();
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      return `${year}-${month}-${day}`;
+    };
+
+    const blob = new Blob([inputUser], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    const currentDate = getCurrentDate();
+    const randomNumber = Math.floor(Math.random() * 10000);
+    const fileName = `spelcek-${currentDate}-${randomNumber}.txt`;
+
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   function Tooltip({ string, children, targetRef }) {
@@ -354,6 +342,15 @@ const TextInput = () => {
     const [hover, setHover] = useState(false);
     const targetRef = useRef(null);
 
+    let dataSuggest;
+    if (tooltipContent.length > 1 && Array.isArray(tooltipContent)) {
+      dataSuggest = tooltipContent[0].target;
+    } else if (typeof tooltipContent === "object") {
+      dataSuggest = tooltipContent.target;
+    } else if (typeof tooltipContent === "string") {
+      dataSuggest = tooltipContent;
+    }
+
     return (
       <span className="relative">
         <span
@@ -363,6 +360,7 @@ const TextInput = () => {
           ref={targetRef}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
+          onClick={() => handleSelectSuggestion(children, dataSuggest)}
         >
           {children}
           {hover && (
@@ -375,12 +373,6 @@ const TextInput = () => {
     );
   }
 
-  const handleHeightPreview = (event) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const y = event.clientY - rect.top;
-    setHeightPreview(y);
-  };
-
   return (
     <div className="grid grid-cols-12 gap-x-5 gap-y-4 lg:gap-y-0">
       <div className="col-span-12 order-2 px-2 lg:col-span-6 lg:px-0">
@@ -388,7 +380,6 @@ const TextInput = () => {
 
         <div
           ref={previewRef}
-          onMouseMove={handleHeightPreview}
           className="relative text-[15px] text-[#333] p-4 pb-5 h-[370px] leading-[21px] rounded-xl border border-slate-400 bg-white overflow-y-scroll"
         >
           <div>{preview}</div>
@@ -432,7 +423,7 @@ const TextInput = () => {
         </div>
 
         <textarea
-          placeholder="Masukkan teks..."
+          placeholder="Masukkan teks di sini..."
           onChange={handleChange}
           value={inputUser}
           ref={textareaRef}
@@ -445,10 +436,10 @@ const TextInput = () => {
         <div className="mt-2 flex justify-between items-center">
           <div
             className={`text-sm ${
-              countWords(inputUser) >= maksInput && "text-blue-500 font-medium"
+              countInput(inputUser) >= maksInput && "text-blue-500 font-medium"
             }`}
           >
-            {inputUser == "" ? 0 : countWords(inputUser).toLocaleString()} /{" "}
+            {inputUser == "" ? 0 : countInput(inputUser).toLocaleString()} /{" "}
             {maksInput.toLocaleString()} karakter
           </div>
           <div className="flex space-x-1.5">

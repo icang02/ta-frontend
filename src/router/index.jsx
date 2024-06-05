@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 import Home from "../views/Home";
@@ -11,9 +11,11 @@ import ErrorPage from "../views/ErrorPage";
 import Navbar from "../components/Navbar";
 import Predictive from "../components/Predictive";
 import DashboardKamus from "../views/DashboardKamus";
+import NavMobile from "../components/NavMobile";
 
 const Router = () => {
   const location = useLocation();
+  const [isMobile, setIsMobile] = useState(false);
 
   // Fungsi untuk memeriksa apakah Navbar harus ditampilkan
   const shouldShowNavbar = () => {
@@ -25,6 +27,19 @@ const Router = () => {
     );
   };
 
+  // Cek ukuran layar saat komponen dimuat
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 576);
+    };
+
+    handleResize(); // Cek ukuran layar saat komponen dimuat
+    window.addEventListener("resize", handleResize); // Daftarkan event listener untuk resize
+    return () => {
+      window.removeEventListener("resize", handleResize); // Hapus event listener saat komponen dilepas
+    };
+  }, []);
+
   return (
     <div
       className={`font-roboto ${
@@ -33,7 +48,8 @@ const Router = () => {
           : "bg-white"
       }`}
     >
-      {shouldShowNavbar() && <Navbar />}
+      {/* {shouldShowNavbar() && <Navbar />} */}
+      {isMobile ? <NavMobile /> : shouldShowNavbar() && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} errorElement={ErrorPage} />
         <Route
