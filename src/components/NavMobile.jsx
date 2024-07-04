@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { isTokenExpired } from "../views/Dashboard";
 import { Squash as Hamburger } from "hamburger-react";
 
@@ -38,7 +38,7 @@ export default function NavMobile() {
   return (
     <div className="fixed top-0 w-full bg-white border-2 shadow z-[999]">
       <nav className="py-1 px-4 flex z-50 mx-auto justify-between items-center max-w-6xl">
-        <Link to={"/"}>
+        <Link to={"/"} onClick={() => setOpen(false)}>
           <img src="logo.png" alt="logo" width={110} />
         </Link>
 
@@ -63,6 +63,14 @@ export default function NavMobile() {
               {item.title}
             </Link>
           ))}
+          <hr className="mt-2 mb-5" />
+          <Link
+            onClick={() => setOpen(false)}
+            to={isLogin ? "/dashboard" : "/login"}
+            className="text-base font-medium py-1.5 text-white rounded bg-blue-500 w-36 mx-auto hover:bg-blue-600 transition-all"
+          >
+            {isLogin ? "Dashboard" : "Login"}
+          </Link>
         </ul>
       </div>
     </div>

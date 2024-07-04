@@ -14,3 +14,14 @@ export const loadingUploadState = atom({
   key: "loadingUploadState",
   default: false,
 });
+
+export const jumlahKataValidState = atom({
+  key: "jumlahKataValidState",
+  default: null,
+});
+
+export const fileNameState = atom({
+  key: "fileName",
+  default: null,
+});
+

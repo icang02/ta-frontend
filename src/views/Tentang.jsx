@@ -82,12 +82,14 @@ export default function Tentang() {
                 </div>
               </>
             ) : (
-              <table className="mx-auto" cellPadding={7}>
+              <table className="mx-auto text-sm md:text-base">
                 <tbody>
                   {data.map((item, i) => (
                     <tr key={i}>
-                      <td className="text-slate-900">{item.title}</td>
-                      <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</td>
+                      <td className="text-slate-900 py-1 pr-10 md:py-2">
+                        {item.title}
+                      </td>
+                      <td className="px-2">:</td>
                       <td className="font-medium text-slate-900">
                         {item.value}
                       </td>

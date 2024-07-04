@@ -3,6 +3,8 @@ import { axiosCustom } from "../../lib/axiosCustom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
 import {
+  fileNameState,
+  jumlahKataValidState,
   loadingUploadState,
   resultApiState,
   saranKataState,
@@ -12,17 +14,19 @@ export default function FileInput() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [statusUpload, setStatusUpload] = useState(false);
   const [dragging, setDragging] = useState(false);
-  const [fileName, setFileName] = useState(null);
+  const [fileName, setFileName] = useRecoilState(fileNameState);
   const [loading, setLoading] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
   const [saranKata, setSaranKata] = useRecoilState(saranKataState);
   const setLoadingUpload = useSetRecoilState(loadingUploadState);
+  const setJumlahKataValid = useSetRecoilState(jumlahKataValidState);
 
   const setResultApi = useSetRecoilState(resultApiState);
   const [errorFileInput, setErrorFileInput] = useState(null);
 
   useEffect(() => {
     setResultApi([]);
+    setJumlahKataValid(null);
   }, []);
 
   const handleFileChange = (e) => {
@@ -71,6 +75,7 @@ export default function FileInput() {
         setStatusUpload(true);
         setFileName(response.data.fileName);
         setResultApi(response.data.suggestWord);
+        setJumlahKataValid(response.data.jumlahKataValid);
 
         setSaranKata(
           response.data.suggestWord.map((item) => ({
@@ -99,6 +104,10 @@ export default function FileInput() {
   const handleDownload = async () => {
     setLoadingDownload(true);
 
+    const extFile = fileName.split(".");
+    const ext = extFile[extFile.length - 1];
+    let extGenerate = ext == "txt" ? ".txt" : ".docx";
+
     const getCurrentDate = () => {
       const date = new Date();
       const day = String(date.getDate()).padStart(2, "0");
@@ -110,9 +119,9 @@ export default function FileInput() {
     const currentDate = getCurrentDate();
     const randomNumber = Math.floor(Math.random() * 10000);
     const fileNameDownload = `${fileName.replace(
-      ".docx",
+      extGenerate,
       ""
-    )}-${currentDate}-${randomNumber}.docx`;
+    )}-${currentDate}-${randomNumber}${extGenerate}`;
 
     axiosCustom({
       url: "/download-file",
@@ -181,7 +190,7 @@ export default function FileInput() {
         >
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             <svg
-              className="w-8 h-8 mb-4 text-gray-500"
+              className="w-8 h-8 mb-6 text-gray-500"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

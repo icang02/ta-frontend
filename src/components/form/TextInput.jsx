@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { axiosCustom } from "../../lib/axiosCustom";
-import { createPortal, render } from "react-dom";
+import { createPortal } from "react-dom";
 
 const TextInput = () => {
   const textareaRef = useRef(null);

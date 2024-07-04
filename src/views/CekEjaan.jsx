@@ -10,11 +10,11 @@ export default function CekEjaan() {
   const loadingUpload = useRecoilValue(loadingUploadState);
 
   return (
-    <div className="pt-[90px] md:pt-20 pb-4 md:pb-0 min-h-screen">
+    <div className="pt-[70px] md:pt-20 pb-4 md:pb-0 min-h-screen">
       <div
         className={`${
           loadingUpload
-            ? "!opacity-65 pointer-events-auto"
+            ? "!opacity-70 pointer-events-auto"
             : "!opacity-0 pointer-events-none"
         } fixed top-0 left-0 w-full h-full bg-black transition-all duration-300 z-[999999]`}
       >
@@ -25,7 +25,7 @@ export default function CekEjaan() {
         </div>
       </div>
 
-      <div className="min-h-[570px] rounded-md shadow-md max-w-6xl mx-auto bg-white p-0 md:p-6">
+      <div className="min-h-[570px] rounded-md shadow-md max-w-6xl mx-auto bg-white py-6 px-0 md:p-6">
         <div className="flex justify-center">
           <button
             onClick={() => setInputType(true)}

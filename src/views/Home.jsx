@@ -17,7 +17,7 @@ const Home = () => {
         </p>
         <Link
           to={"/cek-ejaan"}
-          className="bg-main text-xs md:text-base px-5 py-3 md:px-6 md:py-5 rounded-md text-slate-100 font-bold"
+          className="bg-main text-xs md:text-base px-5 py-3 md:px-6 md:py-5 rounded text-slate-100 font-bold"
         >
           Mulai Cek Ejaan
         </Link>
