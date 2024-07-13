@@ -2,36 +2,45 @@ import React, { useEffect, useState } from "react";
 
 import Sidebar from "../components/Sidebar";
 import Breadcrumb from "../components/Breadcrumb";
-import { useLocation, useNavigate } from "react-router-dom";
-import { dataKamusAtom } from "./Kamus";
-import { useSetRecoilState } from "recoil";
 import { axiosCustom } from "../lib/axiosCustom";
 import TabelKamus from "../components/TabelKamus";
 import Pagination from "../components/Pagination";
-import NavigasiAbjad from "../components/NavigasiAbjad";
 import { toast } from "react-toastify";
 import { isTokenExpired } from "./Dashboard";
+import {
+  abjadState,
+  dataKamusState,
+  editingItemState,
+  isLoadKamusState,
+  pageState,
+  searchKamusAtom,
+} from "../lib/recoil";
+import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
+import NavigasiAbjad from "../components/NavigasiAbjad";
 
 export default function DashboardKamus() {
-  const [name, setName] = useState("Admin");
-
-  const location = useLocation();
-  const navigate = useNavigate();
-  const urlParams = new URLSearchParams(location.search);
-
-  const abjadParam = urlParams.get("abjad");
-  const pageParam = urlParams.get("page");
-  const searchParam = urlParams.get("search");
-
-  const setData = useSetRecoilState(dataKamusAtom);
-  const [loading, setLoading] = useState(true);
-
-  // form tambah variabel
+  const name = "Admin";
   const [inputs, setInputs] = useState([{ value: "" }]);
+  const navigate = useNavigate();
+
+  const resetPage = useResetRecoilState(pageState);
+  const resetAbjad = useResetRecoilState(abjadState);
+  const resetSearch = useResetRecoilState(searchKamusAtom);
+  const [dataKamus, setDataKamus] = useRecoilState(dataKamusState);
+  const page = useRecoilValue(pageState);
+  const abjad = useRecoilValue(abjadState);
+  const search = useRecoilValue(searchKamusAtom);
+  const isLoadKamus = useRecoilValue(isLoadKamusState);
+  const editingItem = useRecoilValue(editingItemState);
 
   useEffect(() => {
-    fetchData();
-  }, [abjadParam, pageParam, searchParam]);
+    return () => {
+      resetPage();
+      resetAbjad();
+      resetSearch();
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -41,32 +50,6 @@ export default function DashboardKamus() {
       return navigate(location.pathname);
     }
   }, []);
-
-  const fetchData = async (take = 50, abjad = "a") => {
-    const data = await axiosCustom.get("/kamus", {
-      params: {
-        take,
-        skip: ((pageParam || 1) - 1) * take || 0,
-        abjad: abjadParam || abjad,
-        search: searchParam || null,
-      },
-    });
-
-    const result = {
-      data: data.data.kamus,
-      metadata: {
-        hasNextPage:
-          ((pageParam ?? 1) - 1) * take + take < data.data.totalKamusAbjad,
-        totalPages: Math.ceil(data.data.totalKamusAbjad / take),
-        itemPerPage: take,
-        totalData: data.data.totalKamusAbjad,
-      },
-      totalKamus: data.data.totalKamus,
-    };
-
-    setData(result);
-    setLoading(false);
-  };
 
   const handleAddInput = () => {
     setInputs([...inputs, { value: "" }]);
@@ -82,6 +65,28 @@ export default function DashboardKamus() {
     const values = [...inputs];
     values[i].value = e.target.value;
     setInputs(values);
+  };
+
+  const fetchData = async (take = 50) => {
+    const response = await axiosCustom.post("/kamus", {
+      take,
+      skip: (page - 1) * take,
+      abjad: abjad,
+      search: search,
+    });
+
+    const result = {
+      data: response.data.kamus,
+      metadata: {
+        hasNextPage: (page - 1) * take + take < response.data.totalKamusAbjad,
+        totalPages: Math.ceil(response.data.totalKamusAbjad / take),
+        itemPerPage: take,
+        totalData: response.data.totalKamusAbjad,
+      },
+      totalKamus: response.data.totalKamus,
+    };
+
+    setDataKamus(result);
   };
 
   const handleSubmitForm = async () => {
@@ -126,29 +131,25 @@ export default function DashboardKamus() {
               <h1 className="font-bold text-2xl">Data Kamus</h1>
               <div className="mt-0.5 h-0.5 w-16 bg-green-600"></div>
 
-              {/* data daftar kamus */}
-              {loading ? (
-                "Loading..."
+              <TabelKamus />
+              {isLoadKamus && Object.keys(dataKamus).length === 0 ? (
+                <p className="mt-4 text-sm text-center animate-pulse text-gray-700">
+                  Loading...
+                </p>
               ) : (
-                <>
-                  <TabelKamus fetchData={fetchData} />
-                  <Pagination
-                    page={pageParam}
-                    abjad={abjadParam}
-                    search={searchParam}
-                  />
-
-                  <NavigasiAbjad />
-                </>
+                <Pagination totalPages={dataKamus.metadata.totalPages} />
               )}
+
+              <NavigasiAbjad />
             </div>
           </div>
+
           <div className="col-span-3">
             <div className="rounded-lg bg-white py-7 px-8 shadow text-slate-800">
               <h4 className="font-bold">Tambah Data</h4>
               <div className="mt-0.5 h-0.5 w-11 bg-green-600"></div>
 
-              <div>
+              <div className={editingItem != null && "pointer-events-none"}>
                 <div className="max-w-md mx-auto mt-4">
                   <div className="flex flex-col space-y-2">
                     {inputs.map((input, i) => (

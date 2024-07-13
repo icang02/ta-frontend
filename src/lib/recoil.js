@@ -25,3 +25,31 @@ export const fileNameState = atom({
   default: null,
 });
 
+export const dataKamusState = atom({
+  key: "dataKamusState",
+  default: {},
+});
+export const searchKamusAtom = atom({
+  key: "searchKamusAtom",
+  default: "",
+});
+
+// pagination
+export const abjadState = atom({
+  key: "abjadState",
+  default: "a",
+});
+export const pageState = atom({
+  key: "pageState",
+  default: 1,
+});
+
+export const isLoadKamusState = atom({
+  key: "isLoadKamusState",
+  default: true,
+});
+
+export const editingItemState = atom({
+  key: "editingItemState",
+  default: null,
+});

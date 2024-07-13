@@ -1,67 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Navbar from "../components/Navbar";
+import { useRecoilValue, useResetRecoilState } from "recoil";
+import {
+  abjadState,
+  dataKamusState,
+  isLoadKamusState,
+  pageState,
+  searchKamusAtom,
+} from "../lib/recoil";
 import TabelKamus from "../components/TabelKamus";
 import NavigasiAbjad from "../components/NavigasiAbjad";
 import Pagination from "../components/Pagination";
-import { useLocation } from "react-router-dom";
-import { axiosCustom } from "../lib/axiosCustom";
-import { atom, useSetRecoilState } from "recoil";
-import { saranKataState } from "../lib/recoil";
-
-export const dataKamusAtom = atom({
-  key: "dataKamusAtom",
-  default: {},
-});
-export const searchKamusAtom = atom({
-  key: "searchKamusAtom",
-  default: "",
-});
 
 export default function Kamus() {
-  const location = useLocation();
-  const urlParams = new URLSearchParams(location.search);
-
-  const abjadParam = urlParams.get("abjad");
-  const pageParam = urlParams.get("page");
-  const searchParam = urlParams.get("search");
-
-  const setData = useSetRecoilState(dataKamusAtom);
-  const setSaranKata = useSetRecoilState(saranKataState);
-  const [loading, setLoading] = useState(true);
+  const resetPage = useResetRecoilState(pageState);
+  const resetAbjad = useResetRecoilState(abjadState);
+  const resetSearch = useResetRecoilState(searchKamusAtom);
+  const dataKamus = useRecoilValue(dataKamusState);
+  const isLoadKamus = useRecoilValue(isLoadKamusState);
 
   useEffect(() => {
-    fetchData();
-  }, [abjadParam, pageParam, searchParam]);
-
-  useEffect(() => {
-    setSaranKata([]);
-  }, []);
-
-  const fetchData = async (take = 50, abjad = "a") => {
-    const data = await axiosCustom.get("/kamus", {
-      params: {
-        take,
-        skip: ((pageParam || 1) - 1) * take || 0,
-        abjad: abjadParam || abjad,
-        search: searchParam || null,
-      },
-    });
-
-    const result = {
-      data: data.data.kamus,
-      metadata: {
-        hasNextPage:
-          ((pageParam ?? 1) - 1) * take + take < data.data.totalKamusAbjad,
-        totalPages: Math.ceil(data.data.totalKamusAbjad / take),
-        itemPerPage: take,
-        totalData: data.data.totalKamusAbjad,
-      },
-      totalKamus: data.data.totalKamus,
+    return () => {
+      resetPage();
+      resetAbjad();
+      resetSearch();
     };
-
-    setData(result);
-    setLoading(false);
-  };
+  }, []);
 
   return (
     <div className="font-roboto">
@@ -74,17 +38,14 @@ export default function Kamus() {
               <h1 className="font-bold text-xl text-center mb-7">
                 Daftar Kamus
               </h1>
-              {loading ? (
-                <p className="text-center">Loading...</p>
+              <TabelKamus />
+
+              {isLoadKamus && Object.keys(dataKamus).length === 0 ? (
+                <p className="mt-4 text-sm text-center animate-pulse text-gray-700">
+                  Loading...
+                </p>
               ) : (
-                <>
-                  <TabelKamus fetchData={fetchData} />
-                  <Pagination
-                    page={pageParam}
-                    abjad={abjadParam}
-                    search={searchParam}
-                  />
-                </>
+                <Pagination totalPages={dataKamus.metadata.totalPages} />
               )}
             </div>
           </div>
