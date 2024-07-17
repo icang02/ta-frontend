@@ -30,8 +30,27 @@ export default function FileInput() {
   }, []);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
+    const selectedFile = e.target.files[0];
+
+    if (selectedFile) {
+      const fileSize = selectedFile.size / 1024 / 1024;
+      const fileExtension = selectedFile.name.split(".").pop();
+
+      if (fileSize > 10) {
+        setErrorFileInput("Ukuran file maksimal 10MB.");
+        setSelectedFile(null);
+        return;
+      }
+
+      if (fileExtension !== "docx" && fileExtension !== "txt") {
+        setErrorFileInput("Upload file dengan format .docx atau .txt");
+        setSelectedFile(null);
+        return;
+      }
+
+      setErrorFileInput("");
+      setSelectedFile(selectedFile);
+    }
   };
 
   const handleDragOver = (e) => {
@@ -58,47 +77,50 @@ export default function FileInput() {
   };
 
   const handleUpload = async () => {
-    setErrorFileInput("");
     setTime(0);
     setIsRunning(true);
     setLoadingUpload(true);
-
     setLoading(true);
+
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    axiosCustom
-      .post("/upload-file", formData)
-      .then((response) => {
-        toast.success("Upload successfully..");
+    try {
+      const response = await axiosCustom.post("/upload-file", formData);
+      setStatusUpload(true);
+      setFileName(response.data.fileName);
+      setResultApi(response.data.suggestWord);
+      setJumlahKataValid(response.data.jumlahKataValid);
 
-        setStatusUpload(true);
-        setFileName(response.data.fileName);
-        setResultApi(response.data.suggestWord);
-        setJumlahKataValid(response.data.jumlahKataValid);
+      setSaranKata(
+        response.data.suggestWord.map((item) => ({
+          str: item.string,
+          target:
+            item.suggestions.length > 1 && Array.isArray(item.suggestions)
+              ? item.suggestions[0].target
+              : typeof item.suggestions === "object"
+              ? item.suggestions.target
+              : typeof item.suggestions === "string" && item.suggestions,
+        }))
+      );
 
-        setSaranKata(
-          response.data.suggestWord.map((item) => ({
-            str: item.string,
-            target:
-              item.suggestions.length > 1 && Array.isArray(item.suggestions)
-                ? item.suggestions[0].target
-                : typeof item.suggestions === "object"
-                ? item.suggestions.target
-                : typeof item.suggestions === "string" && item.suggestions,
-          }))
-        );
-        // console.log(response.data.suggestWord);
-      })
-      .catch((error) => {
-        setErrorFileInput(error.response.data.message);
-        // console.log(error.response.data.message);
-      })
-      .finally(() => {
-        setLoading(false);
-        setIsRunning(false);
-        setLoadingUpload(false);
-      });
+      toast.success("Upload successfully..");
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong.");
+    } finally {
+      setLoading(false);
+      setIsRunning(false);
+      setLoadingUpload(false);
+    }
+  };
+
+  const getCurrentDate = () => {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
   };
 
   const handleDownload = async () => {
@@ -107,14 +129,6 @@ export default function FileInput() {
     const extFile = fileName.split(".");
     const ext = extFile[extFile.length - 1];
     let extGenerate = ext == "txt" ? ".txt" : ".docx";
-
-    const getCurrentDate = () => {
-      const date = new Date();
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      return `${year}-${month}-${day}`;
-    };
 
     const currentDate = getCurrentDate();
     const randomNumber = Math.floor(Math.random() * 10000);
@@ -208,7 +222,7 @@ export default function FileInput() {
               <span className="font-medium">Click to upload</span> or drag and
               drop
             </p>
-            <p className="text-xs text-gray-500">DOCX or TXT (MAX. 15MB)</p>
+            <p className="text-xs text-gray-500">DOCX or TXT (MAX. 10MB)</p>
           </div>
           <input
             onChange={handleFileChange}

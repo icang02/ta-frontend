@@ -245,7 +245,6 @@ export default function TabelKamus() {
                         className="inline-block mx-[1px] bg-yellow-500 px-1 py-1 text-lg rounded text-white cursor-pointer"
                       />
                       <FaTrash
-                        // onClick={() => deleteDataKamus(item.id)}
                         onClick={() => showSwal(item.id, item.kata)}
                         className="inline-block mx-[1px] bg-red-500 px-1 py-1 text-lg rounded text-white cursor-pointer"
                       />
