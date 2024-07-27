@@ -30,14 +30,14 @@ const TextInput = () => {
           arr.push(item);
         });
 
-        setKamusDetect((prev) => {
-          const newKamusDetect = prev.concat(arr);
-          const uniqueKamusDetect = Array.from(
-            new Set(newKamusDetect.map((item) => JSON.stringify(item)))
-          ).map((item) => JSON.parse(item));
+        // setKamusDetect((prev) => {
+        //   const newKamusDetect = prev.concat(arr);
+        //   const uniqueKamusDetect = Array.from(
+        //     new Set(newKamusDetect.map((item) => JSON.stringify(item)))
+        //   ).map((item) => JSON.parse(item));
 
-          return uniqueKamusDetect;
-        });
+        //   return uniqueKamusDetect;
+        // });
       }
       // console.log(kamusDetect);
 

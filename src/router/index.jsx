@@ -9,9 +9,10 @@ import Dashboard from "../views/Dashboard";
 import Login from "../views/Login";
 import ErrorPage from "../views/ErrorPage";
 import Navbar from "../components/Navbar";
-import Predictive from "../components/Predictive";
+import Predictive from "../components/AddKamus";
 import DashboardKamus from "../views/DashboardKamus";
 import NavMobile from "../components/NavMobile";
+import AddKamus from "../components/AddKamus";
 
 const Router = () => {
   const location = useLocation();
@@ -50,6 +51,7 @@ const Router = () => {
     >
       {/* {shouldShowNavbar() && <Navbar />} */}
       {isMobile ? <NavMobile /> : shouldShowNavbar() && <Navbar />}
+
       <Routes>
         <Route path="/" element={<Home />} errorElement={ErrorPage} />
         <Route
@@ -72,9 +74,9 @@ const Router = () => {
         />
 
         <Route
-          path="/predictive"
+          path="/add"
           errorElement={ErrorPage}
-          element={<Predictive />}
+          element={<AddKamus />}
         />
       </Routes>
     </div>

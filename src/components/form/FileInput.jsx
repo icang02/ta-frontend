@@ -36,7 +36,7 @@ export default function FileInput() {
       const fileSize = selectedFile.size / 1024 / 1024;
       const fileExtension = selectedFile.name.split(".").pop();
 
-      if (fileSize > 10) {
+      if (fileSize > 20) {
         setErrorFileInput("Ukuran file maksimal 10MB.");
         setSelectedFile(null);
         return;
