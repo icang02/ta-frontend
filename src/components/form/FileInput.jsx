@@ -11,6 +11,7 @@ import {
 } from "../../lib/recoil";
 
 export default function FileInput() {
+  const maxFileSize = 20;
   const [selectedFile, setSelectedFile] = useState(null);
   const [statusUpload, setStatusUpload] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -36,8 +37,8 @@ export default function FileInput() {
       const fileSize = selectedFile.size / 1024 / 1024;
       const fileExtension = selectedFile.name.split(".").pop();
 
-      if (fileSize > 20) {
-        setErrorFileInput("Ukuran file maksimal 10MB.");
+      if (fileSize > maxFileSize) {
+        setErrorFileInput(`Ukuran file maksimal ${maxFileSize}MB.`);
         setSelectedFile(null);
         return;
       }
@@ -91,6 +92,8 @@ export default function FileInput() {
       setFileName(response.data.fileName);
       setResultApi(response.data.suggestWord);
       setJumlahKataValid(response.data.jumlahKataValid);
+
+      console.log(response.data.dictionaryLookup);
 
       setSaranKata(
         response.data.suggestWord.map((item) => ({
@@ -222,7 +225,7 @@ export default function FileInput() {
               <span className="font-medium">Click to upload</span> or drag and
               drop
             </p>
-            <p className="text-xs text-gray-500">DOCX or TXT (MAX. 10MB)</p>
+            <p className="text-xs text-gray-500">DOCX or TXT (MAX. {maxFileSize}MB)</p>
           </div>
           <input
             onChange={handleFileChange}
